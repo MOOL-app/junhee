@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("joiejuni/spring-boot:1.0", ".")
+                    docker.build("joiejuni/test", ".")
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
-                        docker.image("joiejuni/spring-boot:1.0").push()
+                        docker.image("joiejuni/test").push()
                     }
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/spring-boot:1.0'
+                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/test'
                 }
             }
         }
