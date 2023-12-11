@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
-                    docker.withRegistry('https://hub.docker.com/repositories', 'joiejuni') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
                         docker.image("joiejuni/test").push()
                     }
                 }
