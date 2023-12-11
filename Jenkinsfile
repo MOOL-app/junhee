@@ -2,6 +2,14 @@ pipeline {
     agent any
 
     stages {
+        // 새로 추가한 stage
+        stage('Permissions') {
+            steps {
+                // Gradlew 파일에 실행 권한을 부여하는 단계
+                sh 'chmod +x ./gradlew'
+            }
+        }
+
         stage('Build Spring Boot Project') {
             steps {
                 script {
@@ -15,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("jiwonlee42/spring-boot:1.0", ".")
+                    docker.build("joiejuni/spring-boot:1.0", ".")
                 }
             }
         }
@@ -24,8 +32,8 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
-                    docker.withRegistry('https://registry.hub.docker.com', 'jiwonlee42') {
-                        docker.image("jiwonlee42/spring-boot:1.0").push()
+                    docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
+                        docker.image("joiejuni/spring-boot:1.0").push()
                     }
                 }
             }
@@ -44,7 +52,7 @@ pipeline {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server jiwonlee42/spring-boot:1.0'
+                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/spring-boot:1.0'
                 }
             }
         }
