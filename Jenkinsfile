@@ -34,6 +34,8 @@ pipeline {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
                         docker.image("joiejuni/test").push()
+                        add.push(${env.BUILD_NUMBER})
+                        add.push("latest")
                     }
                 }
             }
