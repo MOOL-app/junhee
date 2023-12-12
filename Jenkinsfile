@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/mool${env.BUILD_ID}'
+                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/mool:${env.BUILD_ID}'
                 }
             }
         }
