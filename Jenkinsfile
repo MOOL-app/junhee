@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("joiejuni/MOOL", ".")
+                    docker.build("joiejuni/mool", ".")
                 }
             }
         }
@@ -38,7 +38,7 @@ pipeline {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
-                        docker.image("joiejuni/MOOL").push()
+                        docker.image("joiejuni/mool").push()
                     }
                 }
             }
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/MOOL'
+                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/mool'
                 }
             }
         }
@@ -76,7 +76,7 @@ pipeline {
 				branch 'main'
 			}
             steps{
-                sh "sed -i 's/MOOL:latest/MOOL:${env.BUILD_ID}/g' deployment.yaml"
+                sh "sed -i 's/mool:latest/mool:${env.BUILD_ID}/g' deployment.yaml"
                 step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
