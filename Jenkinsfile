@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("joiejuni/mool:${env.BUILD_ID}", ".")
+                    myapp=docker.build("joiejuni/mool:${env.BUILD_ID}", ".")
                 }
             }
         }
@@ -38,7 +38,9 @@ pipeline {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
-                        docker.image("joiejuni/mool").push()
+			    myapp.push("latest")
+			    myapp.push("${env.BUILD_ID}")
+                        //docker.image("joiejuni/mool").push()
                     }
                 }
             }
