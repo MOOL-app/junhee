@@ -1,6 +1,11 @@
 pipeline {
     agent any
-
+    environment {
+        PROJECT_ID = 'opensource-398710'
+        CLUSTER_NAME = 'kube'
+        LOCATION = 'asia-northeast3-a'
+        CREDENTIALS_ID = '5c0d9183-3035-46ac-a72b-a4d4b373f84d'
+    }
     stages {
         // 새로 추가한 stage
         stage('Permissions') {
@@ -23,7 +28,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("joiejuni/test", ".")
+                    docker.build("joiejuni/MOOL", ".")
                 }
             }
         }
@@ -33,7 +38,7 @@ pipeline {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
-                        docker.image("joiejuni/test").push()
+                        docker.image("joiejuni/MOOL").push()
                     }
                 }
             }
@@ -52,7 +57,7 @@ pipeline {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/test'
+                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/MOOL'
                 }
             }
         }
@@ -65,5 +70,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to GKE') {
+			when {
+				branch 'main'
+			}
+            steps{
+                sh "sed -i 's/MOOL:latest/MOOL:${env.BUILD_ID}/g' deployment.yaml"
+                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
+            }
+        }
+
     }
 }
