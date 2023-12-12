@@ -36,6 +36,6 @@ spec:
   - port: 80
     targetPort: 5000
   selector:
-    app: MOOL
-    tier: MOOL
+    app: mool
+    tier: mool
   type: LoadBalancer
