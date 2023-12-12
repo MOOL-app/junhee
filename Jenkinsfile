@@ -15,6 +15,15 @@ pipeline {
             }
         }
 
+    	stage('Stop and Remove Existing Container') {
+	    steps {
+		script {
+		    // 기존에 동작 중인 컨테이너 중지 및 삭제
+		    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server || true'
+		}
+	    }
+	}
+	    
         stage('Build Spring Boot Project') {
             steps {
                 script {
@@ -33,6 +42,16 @@ pipeline {
             }
         }
 
+	stage('Debug Environment Variables') {
+	    steps {
+		script {
+		    echo "PROJECT_ID: ${env.PROJECT_ID}"
+		    echo "BUILD_ID: ${env.BUILD_ID}"
+		    // 필요한 다른 환경변수들을 출력
+		}
+	    }
+	}
+
         stage('Push Docker Image') {
             steps {
                 script {
@@ -46,14 +65,6 @@ pipeline {
             }
         }
 
-        stage('Stop and Remove Existing Container') {
-            steps {
-                script {
-                    // 기존에 동작 중인 컨테이너 중지 및 삭제
-                    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server || true'
-                }
-            }
-        }
 
         stage('Run Docker Container') {
             steps {
