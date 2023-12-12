@@ -14,7 +14,7 @@ pipeline {
                 sh 'chmod +x ./gradlew'
             }
         }
-
+	    
         stage('Build Spring Boot Project') {
             steps {
                 script {
@@ -28,36 +28,50 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    docker.build("joiejuni/MOOL", ".")
+                    myapp=docker.build("joiejuni/mool:${env.BUILD_ID}", ".")
                 }
             }
         }
+
+	stage('Debug Environment Variables') {
+	    steps {
+		script {
+		    echo "PROJECT_ID: ${env.PROJECT_ID}"
+		    echo "BUILD_ID: ${env.BUILD_ID}"
+		    // 필요한 다른 환경변수들을 출력
+		}
+	    }
+	}
 
         stage('Push Docker Image') {
             steps {
                 script {
                     // Docker 이미지를 Docker Hub로 푸시
                     docker.withRegistry('https://registry.hub.docker.com', 'joiejuni') {
-                        docker.image("joiejuni/MOOL").push()
+			    myapp.push("latest")
+			    myapp.push("${env.BUILD_ID}")
+                        //docker.image("joiejuni/mool").push()
                     }
                 }
             }
         }
 
-        stage('Stop and Remove Existing Container') {
-            steps {
-                script {
-                    // 기존에 동작 중인 컨테이너 중지 및 삭제
-                    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server || true'
-                }
-            }
-        }
+	    
+	stage('Stop and Remove Existing Container') {
+	    steps {
+		script {
+		    // 기존에 동작 중인 컨테이너 중지 및 삭제
+		    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server || true'
+		}
+	    }
+	}
 
+	    
         stage('Run Docker Container') {
             steps {
                 script {
                     // Docker 컨테이너 실행
-                    sh 'docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/MOOL'
+                    sh "docker run -p 8081:8080 -d --name=spring-boot-server joiejuni/mool:${env.BUILD_ID}"
                 }
             }
         }
@@ -72,11 +86,11 @@ pipeline {
         }
 
         stage('Deploy to GKE') {
-			when {
-				branch 'main'
-			}
+			// when {
+			// 	branch 'main'
+			// }
             steps{
-                sh "sed -i 's/MOOL:latest/MOOL:${env.BUILD_ID}/g' deployment.yaml"
+                sh "sed -i 's/mool:latest/mool:${env.BUILD_ID}/g' deployment.yaml"
                 step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
