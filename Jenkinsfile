@@ -57,14 +57,14 @@ pipeline {
         }
 
 	    
-	stage('Stop and Remove Existing Container') {
-	    steps {
-		script {
-		    // 기존에 동작 중인 컨테이너 중지 및 삭제
-		    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server || true'
-		}
-	    }
-	}
+	// stage('Stop and Remove Existing Container') {
+	//     steps {
+	// 	script {
+	// 	    // 기존에 동작 중인 컨테이너 중지 및 삭제
+	// 	    sh 'docker ps -q --filter "name=spring-boot-server" | grep -q . && docker stop spring-boot-server && docker rm spring-boot-server'
+	// 	}
+	//     }
+	// }
 
 	    
         stage('Run Docker Container') {
@@ -76,22 +76,22 @@ pipeline {
             }
         }
 
+	stage('Deploy to GKE') {
+		// when {
+		// 	branch 'main'
+		// }
+	    steps{
+		sh "sed -i 's/mool:latest/mool:${env.BUILD_ID}/g' deployment.yaml"
+		step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
+	    }
+	}
+	    
         stage('Clean Up Unused Docker Images') {
             steps {
                 script {
                     // 태그가 겹친 이미지 삭제
                     sh 'docker rmi -f $(docker images -f "dangling=true" -q) || true'
                 }
-            }
-        }
-
-        stage('Deploy to GKE') {
-			// when {
-			// 	branch 'main'
-			// }
-            steps{
-                sh "sed -i 's/mool:latest/mool:${env.BUILD_ID}/g' deployment.yaml"
-                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
 
