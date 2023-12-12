@@ -1,36 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: MOOL
+  name: mool
   labels:
-    app: MOOL
+    app: mool
 spec:
   replicas: 3
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: MOOL
+      app: mool
   template:
     metadata:
       labels:
-        app: MOOL
-        tier: MOOL
+        app: mool
+        tier: mool
     spec:
       containers:
-      - name: MOOL
-        image: joiejuni/MOOL:latest
+      - name: mool
+        image: joiejuni/mool:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
-          name: MOOL
+          name: mool
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: MOOL
+  name: mool
   labels:
-    app: MOOL
+    app: mool
 spec:
   ports:
   - port: 80
