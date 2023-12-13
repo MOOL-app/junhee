@@ -1,10 +1,10 @@
-package com.example.demo;
+package mool.moolapp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class MoolApplicationTests {
 
 	@Test
 	void contextLoads() {
